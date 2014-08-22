@@ -1,4 +1,4 @@
 Pong
 ====
 
-Tuubaita ponkia
+Tuubaista ponkia

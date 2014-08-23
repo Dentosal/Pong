@@ -98,7 +98,7 @@ int main()
 			leftPaddle.down(deltaTime);
 		}
 
-		ball.move(deltaTime);
+		ball.liiku(deltaTime);
 
 		// Clear the window
 		window.clear(sf::Color::Black);

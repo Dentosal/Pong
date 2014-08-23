@@ -1,3 +1,9 @@
+
+#include "SFML/include/SFML/System/Vector2.hpp"
+#include "SFML/include/SFML/Graphics/Transformable.hpp"
+#include <iostream>
+using namespace std;
+
 #define PI 3.141592653589793
 class Ball
 {
@@ -5,7 +11,7 @@ class Ball
 		Ball(sf::SoundBuffer);
 		~Ball();
 		void setPos(sf::Vector2f);
-		void move(float);
+		void liiku(float);
 		void draw(sf::RenderWindow&);
 	private:
 		int radius;
@@ -29,7 +35,7 @@ Ball::Ball(sf::SoundBuffer SB) {
 
         speed = 200.f;
 	angle = (std::rand() % 360) * 2 * PI / 360;
-	while (std::abs(std::cos(angle)) < 0.7f) {
+        while (std::abs(std::cos(angle)) < 0.7f) {
 		angle = (std::rand() % 360) * 2 * PI / 360;
 	}
 
@@ -38,8 +44,11 @@ Ball::~Ball() {}
 void Ball::setPos(sf::Vector2f v) {
 	shape.setPosition(v);
 }
-void Ball::move(float dT) {
-    shape.move(dT*cos(angle)*speed,dT*cos(angle)*speed);
+void Ball::liiku(float dT) {
+    shape.move(dT*std::cos(angle)*speed,dT*std::sin(angle)*speed);
+    if (shape.getPosition().y-10.f <= 0 || shape.getPosition().y+10.f >= 768){
+        angle = -angle;
+    }
     speed += 0.1f;
 }
 void Ball::draw(sf::RenderWindow& window) {

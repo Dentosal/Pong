@@ -33,11 +33,11 @@ void Paddle::setPos(sf::Vector2f v) {
 sf::Vector2f Paddle::getSize() {
 	return shape.getSize();
 }
-void Paddle::up(float deltatime) {
-	shape.move(0, deltatime);
+void Paddle::up(float dT) {
+	shape.move(0, -dT*200.0f);
 }
-void Paddle::down(float deltatime) {
-	shape.move(0, deltatime);
+void Paddle::down(float dT) {
+	shape.move(0, dT*200.0f);
 }
 void Paddle::draw(sf::RenderWindow& window) {
 	window.draw(shape);

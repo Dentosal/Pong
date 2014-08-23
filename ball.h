@@ -1,6 +1,3 @@
-
-#include "SFML/include/SFML/System/Vector2.hpp"
-
 #define PI 3.141592653589793
 class Ball
 {

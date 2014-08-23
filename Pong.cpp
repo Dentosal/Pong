@@ -1,12 +1,13 @@
-
+#include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <cmath>
 #include <ctime>
 #include <cstdlib>
+#include <iostream>
+#include <stdio.h>
 #include "ball.h"
 #include "paddle.h"
-
 
 #define PI 3.141592653589793
 

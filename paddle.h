@@ -10,9 +10,17 @@ class Paddle
 		void down(float);
 		void draw(sf::RenderWindow&);
 	private:
-		sf::RectangleShape shape; 	
+		sf::RectangleShape shape;
+		bool left;
 };
-Paddle::Paddle(bool left) {
+Paddle::Paddle(bool l) {
+	left=l;
+	if (left) {
+		shape.setPosition(10, 334);
+	}
+	else {
+		shape.setPosition(1009, 334);
+	}
 	shape.setSize(sf::Vector2f(5, 100));
 	shape.setOutlineThickness(3);
 	shape.setOutlineColor(sf::Color::White);

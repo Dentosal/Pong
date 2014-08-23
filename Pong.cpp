@@ -198,14 +198,14 @@ int main()
 			else {
 				lasers.at(i).move(sf::Vector2f(deltaTime*500, 0));				
 			}
-                        if (lasers.at(i).getPosition().x >= 1024){
-                            RMIndex.push_back(i);
-                        }
-                        if (lasers.at(i).getPosition().x >= 1020-rightPaddle.getSize().x 
+                        if (lasers.at(i).getPosition().x >= 1020-rightPaddle.getSize().x-10.f 
                                 && lasers.at(i).getPosition().x <= 1024
                                 && rightPaddle.getPos().y-5 <= lasers.at(i).getPosition().y+10.f 
                                 && rightPaddle.getPos().y+rightPaddle.getSize().y+5.f >= lasers.at(i).getPosition().y-10.f ){
                             rightPaddle.fainted = true;
+                        }
+                        if (lasers.at(i).getPosition().x >= 1024-rightPaddle.getSize().x-10.f){
+                            RMIndex.push_back(i);
                         }
 		}
                 for (int i = RMIndex.size()-1; i > 0; --i) {

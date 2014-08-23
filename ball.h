@@ -1,6 +1,3 @@
-
-#include "SFML/include/SFML/Graphics/Transformable.hpp"
-#include <iostream>
 using namespace std;
 
 #define PI 3.141592653589793

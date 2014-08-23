@@ -31,7 +31,6 @@ int main()
 	}
 
 
-
 	// Connect other player
 	sf::IpAddress SelfIP = sf::IpAddress::getPublicAddress();	// get own ip
 	std::string IP = SelfIP.toString();
@@ -55,28 +54,29 @@ int main()
 		return EXIT_FAILURE;
 	}
 	std::string dots;
-	while (true) {
-		if (ss.wait(sf::milliseconds(1000))) {
+	// while (true) {
+	// 	if (ss.wait(sf::milliseconds(1000))) {
 			if (listener.accept(client) != sf::Socket::Done)
 			{
 				std::cout << "Connection creation error" << std::endl;
 				return EXIT_FAILURE;
 			}
-		}
-		sf::Event event;
-		while (window.pollEvent(event))
-		{
-			if ((event.type == sf::Event::Closed) || ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Escape))) {
-				return EXIT_SUCCESS;
-			}
-		}
+	// 	}
+	// 	sf::Event event;
+	// 	while (window.pollEvent(event))
+	// 	{
+	// 		if ((event.type == sf::Event::Closed) || ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Escape))) {
+	// 			return EXIT_SUCCESS;
+	// 		}
+	// 	}
 
-		dots+=".";
-		ipmsg.setString("Please connect to\nIP: "+IP+"\n"+dots);
-		window.clear(sf::Color::Black);
-		window.draw(ipmsg);
-		window.display();
-	}
+	// 	dots+=".";
+	// 	ipmsg.setString("Please connect to\nIP: "+IP+"\n"+dots);
+	// 	window.clear(sf::Color::Black);
+	// 	window.draw(ipmsg);
+	// 	window.display();
+	// }
+	std::cout << "#" << std::endl;
 	ipmsg.setString("Connection ok");
 	window.clear(sf::Color::Black);
 	window.draw(ipmsg);
@@ -87,11 +87,8 @@ int main()
 	std::cout << "Client connected from ip \"" << cip << "\"" << std::endl;
 
 	sf::Packet p;
-	p << 1;
+	p << 0;
 	client.send(p);
-
-
-
 
 
 

@@ -11,6 +11,7 @@ class Paddle
 		void down(float);
 		void draw(sf::RenderWindow&, float);
 		bool canShoot();
+		float[] getData();
 	private:
 		sf::RectangleShape shape;
 		bool left;
@@ -67,4 +68,7 @@ void Paddle::draw(sf::RenderWindow& window, float dT) {
 	else {
 		laserload-=(dT);
 	}
+}
+float[] Paddle::getData() {
+	float[] x={shape.getPosition().x, shape.getPosition().y, shape.getSize().x, shape.getSize().y};
 }

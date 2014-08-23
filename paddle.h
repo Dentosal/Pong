@@ -5,6 +5,7 @@ class Paddle
 		~Paddle();
 		void setPos(sf::Vector2f);
 		void setPos(float, float);
+		sf::Vector2f getPos();
 		sf::Vector2f getSize();
 		void up(float);
 		void down(float);
@@ -29,6 +30,9 @@ Paddle::Paddle(bool l) {
 Paddle::~Paddle() {}
 void Paddle::setPos(sf::Vector2f v) {
 	shape.setPosition(v);
+}
+sf::Vector2f Paddle::getPos() {
+	return shape.getPosition();
 }
 sf::Vector2f Paddle::getSize() {
 	return shape.getSize();

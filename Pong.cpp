@@ -35,7 +35,11 @@ int main()
 	Ball ball(ballSoundBuffer);
 	ball.setPos(sf::Vector2f(windowsize.x/2, windowsize.y/2));
 
+	// lasers
+	std::vector<sf::RectangleShape> lasers;
 
+
+	bool isLeft = true;
 
 	// Load the text font
 	sf::Font font;
@@ -62,8 +66,29 @@ int main()
 				window.close();
 				break;
 			}
+			if (event.type==sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space) {
+				sf::RectangleShape laser(sf::Vector2f(10, 2));
+				if (isLeft) {
+					laser.setPosition(leftPaddle.getPos()+leftPaddle.getSize()/2.0f);
+					laser.rotate(0);
+				}
+				else {
+					laser.setPosition(rightPaddle.getPos()+rightPaddle.getSize()/2.0f);
+					laser.rotate(180);
+				}
+				laser.setFillColor(sf::Color::Green);
+				float a = laser.getRotation();
+				a=a*(PI/180);
+				float y=sin(a);
+				float x=cos(a);
+				for (int i = 0; i < 40; ++i)
+				{
+					laser.move(sf::Vector2f(x, y));
+				}
+				lasers.push_back(laser);
+			}
 		}
-
+		// get timedelta, reset clock
 		float deltaTime = clock.restart().asSeconds();
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
@@ -77,7 +102,19 @@ int main()
 
 		// Clear the window
 		window.clear(sf::Color::Black);
+		// And draw everything
 		window.draw(scoreMsg);
+		// Draw and move lasers
+		for (int i = 0; i < lasers.size(); ++i) {
+			window.draw(lasers.at(i));
+			float a = lasers.at(i).getRotation();
+			if (a==0) {
+				lasers.at(i).move(sf::Vector2f(deltaTime*500, 0));
+			}
+			else {
+				lasers.at(i).move(sf::Vector2f(deltaTime*500, 0));				
+			}
+		}
 		leftPaddle.draw(window);
 		rightPaddle.draw(window);
 		ball.draw(window);

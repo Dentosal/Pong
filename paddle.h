@@ -9,10 +9,12 @@ class Paddle
 		sf::Vector2f getSize();
 		void up(float);
 		void down(float);
-		void draw(sf::RenderWindow&);
+		void draw(sf::RenderWindow&, float);
+		bool canShoot();
 	private:
 		sf::RectangleShape shape;
 		bool left;
+		float laserload;
 };
 Paddle::Paddle(bool l) {
 	left=l;
@@ -26,10 +28,18 @@ Paddle::Paddle(bool l) {
 	shape.setOutlineThickness(3);
 	shape.setOutlineColor(sf::Color::White);
 	shape.setFillColor(sf::Color::Blue);
+	laserload=0;
 }
 Paddle::~Paddle() {}
 void Paddle::setPos(sf::Vector2f v) {
 	shape.setPosition(v);
+}
+bool Paddle::canShoot() {
+	if (laserload<0.1) {
+		laserload=1.0;
+		return true;
+	}
+	return false;
 }
 sf::Vector2f Paddle::getPos() {
 	return shape.getPosition();
@@ -39,10 +49,22 @@ sf::Vector2f Paddle::getSize() {
 }
 void Paddle::up(float dT) {
 	shape.move(0, -dT*200.0f);
+	if (shape.getPosition().y<0) {
+		shape.setPosition(shape.getPosition().x, 0);
+	}
 }
 void Paddle::down(float dT) {
 	shape.move(0, dT*200.0f);
+	if (shape.getPosition().y>768-shape.getSize().y) {
+		shape.setPosition(shape.getPosition().x, 768-shape.getSize().y);
+	}
 }
-void Paddle::draw(sf::RenderWindow& window) {
+void Paddle::draw(sf::RenderWindow& window, float dT) {
 	window.draw(shape);
+	if (laserload<0) {
+		laserload=0;
+	}
+	else {
+		laserload-=(dT);
+	}
 }

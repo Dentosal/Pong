@@ -1,15 +1,17 @@
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+#include <SFML/Network.hpp>
 #include <cmath>
 #include <ctime>
 #include <cstdlib>
 #include <iostream>
 #include <stdio.h>
-#include "ball.h"
 #include "paddle.h"
+#include "ball.h"
 
 #define PI 3.141592653589793
+#define PORT 8171
 
 int main()
 {
@@ -21,6 +23,77 @@ int main()
 	// Create the window of the application
 	sf::RenderWindow window(sf::VideoMode(windowsize.x, windowsize.y, 32), "");
 	window.setVerticalSyncEnabled(true);
+
+	// Load the text font
+	sf::Font font;
+	if (!font.loadFromFile("resources/font.ttf")) {
+		return EXIT_FAILURE;
+	}
+
+
+
+	// Connect other player
+	sf::IpAddress SelfIP = sf::IpAddress::getPublicAddress();	// get own ip
+	std::string IP = SelfIP.toString();
+
+	sf::Text ipmsg;
+	ipmsg.setFont(font);
+	ipmsg.setCharacterSize(40);
+	ipmsg.setPosition(50, 50);
+	ipmsg.setColor(sf::Color::Green);
+	ipmsg.setString("Please connect to\nIP: "+IP);
+
+	window.clear(sf::Color::Black);
+	window.draw(ipmsg);
+	window.display();
+
+	sf::SocketSelector ss;
+	sf::TcpListener listener;
+	sf::TcpSocket client;
+	if (listener.listen(PORT) != sf::Socket::Done){
+		std::cout << "Connection creation error" << std::endl;
+		return EXIT_FAILURE;
+	}
+	std::string dots;
+	while (true) {
+		if (ss.wait(sf::milliseconds(1000))) {
+			if (listener.accept(client) != sf::Socket::Done)
+			{
+				std::cout << "Connection creation error" << std::endl;
+				return EXIT_FAILURE;
+			}
+		}
+		sf::Event event;
+		while (window.pollEvent(event))
+		{
+			if ((event.type == sf::Event::Closed) || ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Escape))) {
+				return EXIT_SUCCESS;
+			}
+		}
+
+		dots+=".";
+		ipmsg.setString("Please connect to\nIP: "+IP+"\n"+dots);
+		window.clear(sf::Color::Black);
+		window.draw(ipmsg);
+		window.display();
+	}
+	ipmsg.setString("Connection ok");
+	window.clear(sf::Color::Black);
+	window.draw(ipmsg);
+	window.display();
+
+	sf::IpAddress cip;
+	cip=client.getRemoteAddress();
+	std::cout << "Client connected from ip \"" << cip << "\"" << std::endl;
+
+	sf::Packet p;
+	p << 1;
+	client.send(p);
+
+
+
+
+
 
 	// Load the sounds used in the game
 	sf::SoundBuffer ballSoundBuffer;
@@ -40,11 +113,6 @@ int main()
 
 
 	bool isLeft = true;
-
-	// Load the text font
-	sf::Font font;
-	if (!font.loadFromFile("resources/font.ttf"))
-		return EXIT_FAILURE;
 
 	sf::Text scoreMsg;
 	scoreMsg.setFont(font);
@@ -98,7 +166,7 @@ int main()
 			leftPaddle.down(deltaTime);
 		}
 
-		ball.liiku(deltaTime);
+		ball.liiku(deltaTime, leftPaddle, rightPaddle);
 
 		// Clear the window
 		window.clear(sf::Color::Black);
@@ -115,11 +183,10 @@ int main()
 				lasers.at(i).move(sf::Vector2f(deltaTime*500, 0));				
 			}
 		}
-		leftPaddle.draw(window);
-		rightPaddle.draw(window);
+		leftPaddle.draw(window, deltaTime);
+		rightPaddle.draw(window, deltaTime);
 		ball.draw(window);
 		window.display();
 	}
-
 	return EXIT_SUCCESS;
 }

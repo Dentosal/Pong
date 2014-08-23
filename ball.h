@@ -42,29 +42,29 @@ void Ball::setPos(sf::Vector2f v) {
 	shape.setPosition(v);
 }
 void Ball::liiku(float dT, Paddle left, Paddle right) {
-	shape.move(dT*std::cos(angle)*speed,dT*std::sin(angle)*speed);
-	if (shape.getPosition().y-10.f <= 0 || shape.getPosition().y+10.f >= 768){
-		angle = -angle;
-	}
-	
-	if (shape.getPosition().x-10.f <= left.getSize().x+5.f
-			&& left.getPos().y <= shape.getPosition().y+10.f 
-			&& left.getPos().y+left.getSize().y >= shape.getPosition().y-10.f 
-			&& (angle > PI/2 || angle < -PI/2)){
-		angle = PI-angle-((left.getPos().y+left.getSize().y/2)-shape.getPosition().y)/(left.getSize().y)*angle;
-	}
-	if (shape.getPosition().x+10.f >= 1020-right.getSize().x 
-			&& right.getPos().y-5 <= shape.getPosition().y+10.f 
-			&& right.getPos().y+left.getSize().y+5.f >= shape.getPosition().y-10.f 
-			&& (angle < PI/2 || angle > -PI/2)){
-		angle = PI-angle-((left.getPos().y+left.getSize().y/2)-shape.getPosition().y)/(left.getSize().y)*angle;
-	}
-	
-	if (shape.getPosition().x-10.f <= -50.f || shape.getPosition().x-5.f >= 1070){
-		angle = PI - angle;
-	}
-	
-	speed += 0.1f;
+    shape.move(dT*std::cos(angle)*speed,dT*std::sin(angle)*speed);
+    if (shape.getPosition().y-10.f <= 0 || shape.getPosition().y+10.f >= 768){
+        angle = -angle;
+    }
+    
+    if (shape.getPosition().x-10.f <= left.getSize().x+5.f
+            && left.getPos().y <= shape.getPosition().y+10.f 
+            && left.getPos().y+left.getSize().y >= shape.getPosition().y-10.f 
+            && (angle > PI/2 || angle < -PI/2)){
+        angle = PI-angle-((left.getPos().y+left.getSize().y/2)-shape.getPosition().y)/(left.getSize().y)*angle;
+    }
+    if (shape.getPosition().x+10.f >= 1020-right.getSize().x 
+            && right.getPos().y-5 <= shape.getPosition().y+10.f 
+            && right.getPos().y+right.getSize().y+5.f >= shape.getPosition().y-10.f 
+            && (angle < PI/2 || angle > -PI/2)){
+        angle = PI-angle-((right.getPos().y+right.getSize().y/2)-shape.getPosition().y)/(left.getSize().y)*angle;
+    }
+    
+    if (shape.getPosition().x-10.f <= -50.f || shape.getPosition().x-5.f >= 1070){
+        angle = PI - angle;
+    }
+    
+    speed += 0.1f;
 }
 void Ball::draw(sf::RenderWindow& window) {
 	window.draw(shape);

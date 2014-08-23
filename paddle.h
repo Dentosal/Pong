@@ -10,7 +10,9 @@ class Paddle
 		void up(float);
 		void down(float);
 		void draw(sf::RenderWindow&, float);
-		bool canShoot();
+		bool canShoot();                
+                bool fainted;
+                float timeFainted;
 		float[] getData();
 	private:
 		sf::RectangleShape shape;
@@ -29,6 +31,8 @@ Paddle::Paddle(bool l) {
 	shape.setOutlineThickness(3);
 	shape.setOutlineColor(sf::Color::White);
 	shape.setFillColor(sf::Color::Blue);
+        fainted = false;
+        float timeFainted = 0;
 	laserload=0;
 }
 Paddle::~Paddle() {}

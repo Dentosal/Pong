@@ -157,11 +157,28 @@ int main()
 		float deltaTime = clock.restart().asSeconds();
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+                    if (!leftPaddle.fainted){
 			leftPaddle.up(deltaTime);
+                    } else {
+                        leftPaddle.timeFainted += deltaTime;
+                    }
 		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+                    if (!leftPaddle.fainted){
 			leftPaddle.down(deltaTime);
+                    } else {
+                        leftPaddle.timeFainted += deltaTime;
+                    }
 		}
+                
+                if (leftPaddle.timeFainted >= 3){
+                    leftPaddle.timeFainted = 0;
+                    leftPaddle.fainted = false;
+                }
+                if (rightPaddle.timeFainted >= 3){
+                    rightPaddle.timeFainted = 0;
+                    rightPaddle.fainted = false;
+                }
 
 		ball.liiku(deltaTime, leftPaddle, rightPaddle);
 
@@ -170,6 +187,8 @@ int main()
 		// And draw everything
 		window.draw(scoreMsg);
 		// Draw and move lasers
+                std::vector<int> RMIndex;
+                
 		for (int i = 0; i < lasers.size(); ++i) {
 			window.draw(lasers.at(i));
 			float a = lasers.at(i).getRotation();
@@ -179,7 +198,19 @@ int main()
 			else {
 				lasers.at(i).move(sf::Vector2f(deltaTime*500, 0));				
 			}
+                        if (lasers.at(i).getPosition().x >= 1024){
+                            RMIndex.push_back(i);
+                        }
+                        if (lasers.at(i).getPosition().x >= 1020-rightPaddle.getSize().x 
+                                && lasers.at(i).getPosition().x <= 1024
+                                && rightPaddle.getPos().y-5 <= lasers.at(i).getPosition().y+10.f 
+                                && rightPaddle.getPos().y+rightPaddle.getSize().y+5.f >= lasers.at(i).getPosition().y-10.f ){
+                            rightPaddle.fainted = true;
+                        }
 		}
+                for (int i = RMIndex.size()-1; i > 0; --i) {
+                    lasers.erase(lasers.begin()+i);
+                }
 		leftPaddle.draw(window, deltaTime);
 		rightPaddle.draw(window, deltaTime);
 		ball.draw(window);

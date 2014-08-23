@@ -34,10 +34,10 @@ sf::Vector2f Paddle::getSize() {
 	return shape.getSize();
 }
 void Paddle::up(float deltatime) {
-
+	shape.move(0, deltatime);
 }
 void Paddle::down(float deltatime) {
-	
+	shape.move(0, deltatime);
 }
 void Paddle::draw(sf::RenderWindow& window) {
 	window.draw(shape);

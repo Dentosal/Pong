@@ -99,16 +99,28 @@ int main()
 
 
 	// Load the sounds used in the game
-	sf::SoundBuffer ballSoundBuffer;
-	if (!ballSoundBuffer.loadFromFile("resources/30.wav")) {
+	sf::SoundBuffer sound1;
+	if (!sound1.loadFromFile("resources/30.wav")) {
 		return EXIT_FAILURE;
 	}
+	sf::SoundBuffer sound2;
+	if (!sound2.loadFromFile("resources/hit.wav")) {
+		return EXIT_FAILURE;
+	}
+	sf::SoundBuffer sound3;
+	if (!sound3.loadFromFile("resources/30.wav")) {
+		return EXIT_FAILURE;
+	}
+	sf::Sound s1;
+	s1.setBuffer(sound1);
+	sf::Sound s2;
+	s2.setBuffer(sound2);
 
 	// Create paddles
 	Paddle leftPaddle(true);
 	Paddle rightPaddle(false);
 	// Create ball
-	Ball ball(ballSoundBuffer);
+	Ball ball(sound3);
 	ball.setPos(sf::Vector2f(windowsize.x/2, windowsize.y/2));
 
 	// lasers
@@ -234,12 +246,14 @@ int main()
 							&& rightPaddle.getPos().y-5.f <= lasers.at(i).getPosition().y 
 							&& rightPaddle.getPos().y+rightPaddle.getSize().y+5.f >= lasers.at(i).getPosition().y ){
 						rightPaddle.fainted = true;
+						s2.play();
 					}
 					if (lasers.at(i).getPosition().x <= leftPaddle.getPos().x + leftPaddle.getSize().x
 							&& lasers.at(i).getPosition().x >= 10.f 
 							&& leftPaddle.getPos().y-5.f <= lasers.at(i).getPosition().y
 							&& leftPaddle.getPos().y+leftPaddle.getSize().y+5.f >= lasers.at(i).getPosition().y ){
 						leftPaddle.fainted = true;
+						s2.play();
 					}
 					if (lasers.at(i).getPosition().x >= 1024-rightPaddle.getSize().x-10.f
 							|| lasers.at(i).getPosition().x <= 10.f){

@@ -109,7 +109,6 @@ int main()
 	std::vector<sf::RectangleShape> lasers;
 
 
-	const bool isLeft = true;
 
 	sf::Text scoreMsg;
 	scoreMsg.setFont(font);
@@ -134,14 +133,7 @@ int main()
 			}
 			if (event.type==sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space) {
 				sf::RectangleShape laser(sf::Vector2f(10, 2));
-				if (isLeft) {
-					laser.setPosition(leftPaddle.getPos()+leftPaddle.getSize()/2.0f);
-					laser.rotate(0);
-				}
-				else {
-					laser.setPosition(rightPaddle.getPos()+rightPaddle.getSize()/2.0f);
-					laser.rotate(180);
-				}
+				laser.setPosition(leftPaddle.getPos()+leftPaddle.getSize()/2.0f);
 				laser.setFillColor(sf::Color::Green);
 				float a = laser.getRotation();
 				a=a*(PI/180);
@@ -156,13 +148,41 @@ int main()
 		}
 		// get timedelta, reset clock
 		float deltaTime = clock.restart().asSeconds();
-
+		if (clientbuttons[0]) {
+			sf::RectangleShape laser(sf::Vector2f(10, 2));
+			laser.rotate(0);
+			laser.setPosition(rightPaddle.getPos()+rightPaddle.getSize()/2.0f);
+			laser.setPosition(leftPaddle.getPos()+leftPaddle.getSize()/2.0f);
+			laser.setFillColor(sf::Color::Green);
+			float a = laser.getRotation();
+			a=a*(PI/180);
+			float y=sin(a);
+			float x=cos(a);
+			for (int i = 0; i < 40; ++i) {
+				laser.move(sf::Vector2f(x, y));
+			}
+			lasers.push_back(laser);
+		}
+		if (clientbuttons[1]) {
+			if (!rightPaddle.fainted){
+				rightPaddle.up(deltaTime);
+			} else {
+				rightPaddle.timeFainted += deltaTime;
+			}
+		}
+		if (clientbuttons[2]) {
+			if (!rightPaddle.fainted){
+				rightPaddle.down(deltaTime);
+			} else {
+				rightPaddle.timeFainted += deltaTime;
+			}
+		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-					if (!leftPaddle.fainted){
-			leftPaddle.up(deltaTime);
-					} else {
-						leftPaddle.timeFainted += deltaTime;
-					}
+			if (!leftPaddle.fainted){
+				leftPaddle.up(deltaTime);
+			} else {
+				leftPaddle.timeFainted += deltaTime;
+			}
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
 			if (!leftPaddle.fainted){
@@ -171,7 +191,8 @@ int main()
 				leftPaddle.timeFainted += deltaTime;
 			}
 		}
-				
+		
+
 		if (leftPaddle.timeFainted >= 3){
 			leftPaddle.timeFainted = 0;
 			leftPaddle.fainted = false;

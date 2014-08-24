@@ -37,6 +37,29 @@ int main() {
 	p >> statusmsg;
 	std::cout << statusmsg << std::endl;
 
+	sf::RectangleShape left;
+	left.setPosition(10, 334);
+	left.setSize(sf::Vector2f(5, 100));
+	left.setOutlineThickness(3);
+	left.setOutlineColor(sf::Color::White);
+	left.setFillColor(sf::Color::Blue);
+
+	sf::RectangleShape right;
+	right.setPosition(10, 334);
+	right.setSize(sf::Vector2f(5, 100));
+	right.setOutlineThickness(3);
+	right.setOutlineColor(sf::Color::White);
+	right.setFillColor(sf::Color::Blue);
+
+	const int radius = 10;
+	sf::CircleShape ball;
+	ball.setRadius(radius - 3);
+	ball.setOutlineThickness(3);
+	ball.setOutlineColor(sf::Color::White);
+	ball.setFillColor(sf::Color::Blue);
+	ball.setOrigin(radius / 2, radius / 2);
+
+
 	while (window.isOpen())
 	{
 		// Handle events
@@ -49,57 +72,51 @@ int main() {
 				break;
 			}
 			if (event.type==sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space) {
-				sf::RectangleShape laser(sf::Vector2f(10, 2));
-				if (isLeft) {
-					laser.setPosition(leftPaddle.getPos()+leftPaddle.getSize()/2.0f);
-					laser.rotate(0);
-				}
-				else {
-					laser.setPosition(rightPaddle.getPos()+rightPaddle.getSize()/2.0f);
-					laser.rotate(180);
-				}
-				laser.setFillColor(sf::Color::Green);
-				float a = laser.getRotation();
-				a=a*(PI/180);
-				float y=sin(a);
-				float x=cos(a);
-				for (int i = 0; i < 40; ++i)
-				{
-					laser.move(sf::Vector2f(x, y));
-				}
-				lasers.push_back(laser);
+
 			}
 		}
-		// get timedelta, reset clock
-		float deltaTime = clock.restart().asSeconds();
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-			leftPaddle.up(deltaTime);
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-			leftPaddle.down(deltaTime);
 		}
-
-		ball.liiku(deltaTime, leftPaddle, rightPaddle);
+		sf::Packet p;
+		p << 404;
+		socket.send(p);
+		socket.receive(p);
+		std::cout << "/" << std::endl;
+		int statusmsg;
+		int type;
+		p >> statusmsg;
+		while (!p.endOfPacket()) {
+			p >> type;
+			if (type==1) {
+				bool l;
+				p >> l;
+				float x, y, sx, sy;
+				p >> x >> y >> sx >> sy;
+				if (l) {
+					left.setPosition(sf::Vector2f(x, y));
+					left.setSize(sf::Vector2f(sx, sy));
+				}
+				else {
+					right.setPosition(sf::Vector2f(x, y));
+					right.setSize(sf::Vector2f(sx, sy));
+				}
+			}
+			else if (type==2) {
+				float x, y;
+				p >> x >> y;
+				ball.setPosition(sf::Vector2f(x, y));
+			}
+		} 
 
 		// Clear the window
 		window.clear(sf::Color::Black);
-		// And draw everything
-		window.draw(scoreMsg);
-		// Draw and move lasers
-		for (int i = 0; i < lasers.size(); ++i) {
-			window.draw(lasers.at(i));
-			float a = lasers.at(i).getRotation();
-			if (a==0) {
-				lasers.at(i).move(sf::Vector2f(deltaTime*500, 0));
-			}
-			else {
-				lasers.at(i).move(sf::Vector2f(deltaTime*500, 0));				
-			}
-		}
-		leftPaddle.draw(window, deltaTime);
-		rightPaddle.draw(window, deltaTime);
-		ball.draw(window);
+
+		window.draw(left);
+		window.draw(right);
+		window.draw(ball);
 		window.display();
 	}
 

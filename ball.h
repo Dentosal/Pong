@@ -51,13 +51,13 @@ void Ball::liiku(float dT, Paddle left, Paddle right) {
             && left.getPos().y <= shape.getPosition().y+10.f 
             && left.getPos().y+left.getSize().y >= shape.getPosition().y-10.f 
             && (angle > PI/2 || angle < -PI/2)){
-        angle = PI-angle-((left.getPos().y+left.getSize().y/2)-shape.getPosition().y)/(left.getSize().y)*angle;
+        angle = PI-angle-(((left.getPos().y+left.getSize().y/2)-shape.getPosition().y)/(left.getSize().y));
     }
     if (shape.getPosition().x+10.f >= 1020-right.getSize().x 
             && right.getPos().y-5 <= shape.getPosition().y+10.f 
             && right.getPos().y+right.getSize().y+5.f >= shape.getPosition().y-10.f 
             && (angle < PI/2 || angle > -PI/2)){
-        angle = PI-angle-((right.getPos().y+right.getSize().y/2)-shape.getPosition().y)/(left.getSize().y)*angle;
+        angle = PI-angle-(((right.getPos().y+right.getSize().y/2)-shape.getPosition().y)/(left.getSize().y));
     }
     
     if (shape.getPosition().x-10.f <= -50.f || shape.getPosition().x-5.f >= 1070){

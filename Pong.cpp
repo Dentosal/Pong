@@ -9,9 +9,16 @@
 #include <stdio.h>
 #include "paddle.h"
 #include "ball.h"
+#include <sstream>
 
 #define PI 3.141592653589793
 #define PORT 8171
+
+static inline std::string toStr(int x) {
+	std::stringstream type;
+	type << x;
+	return type.str();
+}
 
 int main()
 {
@@ -112,10 +119,10 @@ int main()
 	sf::Text scoreMsg;
 	scoreMsg.setFont(font);
 	scoreMsg.setCharacterSize(40);
-	scoreMsg.setPosition(50, 50);
 	scoreMsg.setColor(sf::Color::Green);
-	scoreMsg.setString("0 0");
-//	scoreMsg.setOrigin(scoreMsg.getLocalBounds()/2.0f);
+	scoreMsg.setString("0 - 0");
+	scoreMsg.setOrigin(sf::Vector2f(scoreMsg.getLocalBounds().left+scoreMsg.getLocalBounds().width/2.0f, scoreMsg.getLocalBounds().top+scoreMsg.getLocalBounds().height/2.0f));
+	scoreMsg.setPosition(512, 50);
 
 	bool clientbuttons[3] = {false, false, false};
 
@@ -131,10 +138,10 @@ int main()
 				window.close();
 				break;
 			}
-			if (event.type==sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space && leftPaddle.canShoot) {
+			if (event.type==sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space && leftPaddle.canShoot && !leftPaddle.fainted) {
 				sf::RectangleShape laser(sf::Vector2f(10, 2));
 				laser.setPosition(leftPaddle.getPos()+leftPaddle.getSize()/2.0f);
-
+				leftPaddle.shoot();
 				laser.setFillColor(sf::Color::Green);
 				float a = laser.getRotation();
 				a=a*(PI/180);
@@ -149,11 +156,12 @@ int main()
 		}
 		// get timedelta, reset clock
 		float deltaTime = clock.restart().asSeconds();
-		if (clientbuttons[0] && rightPaddle.canShoot) {
+		if (clientbuttons[0] && rightPaddle.canShoot && !rightPaddle.fainted) {
 			sf::RectangleShape laser(sf::Vector2f(10, 2));
 			laser.rotate(180);
 			laser.setPosition(rightPaddle.getPos()+rightPaddle.getSize()/2.0f);
 			laser.setFillColor(sf::Color::Green);
+			rightPaddle.shoot();
 			float a = laser.getRotation();
 			a=a*(PI/180);
 			float y=sin(a);
@@ -174,54 +182,29 @@ int main()
 			}
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-                    if (!leftPaddle.fainted){
-                            leftPaddle.up(deltaTime);
-                    }
+			if (!leftPaddle.fainted){
+				leftPaddle.up(deltaTime);
+			}
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-                    if (!leftPaddle.fainted){
-                            leftPaddle.down(deltaTime);
-                    }
+			if (!leftPaddle.fainted){
+				leftPaddle.down(deltaTime);
+			}
 		}
-                
+				
 		ball.liiku(deltaTime, leftPaddle, rightPaddle);
+		// update score message
+		scoreMsg.setString(toStr(leftPaddle.score)+" - "+toStr(rightPaddle.score));
+		scoreMsg.setOrigin(sf::Vector2f(scoreMsg.getLocalBounds().left+scoreMsg.getLocalBounds().width/2.0f, scoreMsg.getLocalBounds().top+scoreMsg.getLocalBounds().height/2.0f));
 
 		// Clear the window
 		window.clear(sf::Color::Black);
 		// And draw everything
 		window.draw(scoreMsg);
-		// Draw and move lasers
-                std::vector<int> RMIndex;
-                
-		for (int i = 0; i < lasers.size(); ++i) {
-                    window.draw(lasers.at(i));
-                    float a = lasers.at(i).getRotation();
-                    if (a==0) {
-                            lasers.at(i).move(sf::Vector2f(deltaTime*500, 0));
-                    }
-                    else {
-                            lasers.at(i).move(sf::Vector2f(-deltaTime*500, 0));				
-                    }
-                    if (lasers.at(i).getPosition().x >= 1020-rightPaddle.getSize().x-10.f 
-                            && lasers.at(i).getPosition().x <= 1024
-                            && rightPaddle.getPos().y-5.f <= lasers.at(i).getPosition().y 
-                            && rightPaddle.getPos().y+rightPaddle.getSize().y+5.f >= lasers.at(i).getPosition().y ){
-                        rightPaddle.fainted = true;
-                    }
-                    if (lasers.at(i).getPosition().x <= leftPaddle.getPos().x + leftPaddle.getSize().x
-                            && lasers.at(i).getPosition().x >= 10.f 
-                            && leftPaddle.getPos().y-5.f <= lasers.at(i).getPosition().y
-                            && leftPaddle.getPos().y+leftPaddle.getSize().y+5.f >= lasers.at(i).getPosition().y ){
-                        leftPaddle.fainted = true;
-                    }
-                    if (lasers.at(i).getPosition().x >= 1024-rightPaddle.getSize().x-10.f
-                            || lasers.at(i).getPosition().x <= 10.f){
-                        RMIndex.push_back(i);
-                    }
-                }
-		
-		for (int i = RMIndex.size()-1; i > 0; --i) {
-			lasers.erase(lasers.begin()+i);
+		// Draw and move and dump lasers
+		std::vector<int> RMIndex;
+		for (int i = 0; i < 3; ++i) {
+			clientbuttons[i] = false;
 		}
 		sf::Packet p;
 		client.receive(p);
@@ -232,9 +215,41 @@ int main()
 		}
 		p.clear();
 		p << 0;
+		p << 4 << toStr(leftPaddle.score)+" - "+toStr(rightPaddle.score);
 		leftPaddle.dump(p);
 		rightPaddle.dump(p);
 		ball.dump(p);
+		for (int i = 0; i < lasers.size(); ++i) {
+					window.draw(lasers.at(i));
+					p << 3 << lasers.at(i).getPosition().x << lasers.at(i).getPosition().y;
+					float a = lasers.at(i).getRotation();
+					if (a==0) {
+							lasers.at(i).move(sf::Vector2f(deltaTime*500, 0));
+					}
+					else {
+							lasers.at(i).move(sf::Vector2f(-deltaTime*500, 0));				
+					}
+					if (lasers.at(i).getPosition().x >= 1020-rightPaddle.getSize().x-10.f 
+							&& lasers.at(i).getPosition().x <= 1024
+							&& rightPaddle.getPos().y-5.f <= lasers.at(i).getPosition().y 
+							&& rightPaddle.getPos().y+rightPaddle.getSize().y+5.f >= lasers.at(i).getPosition().y ){
+						rightPaddle.fainted = true;
+					}
+					if (lasers.at(i).getPosition().x <= leftPaddle.getPos().x + leftPaddle.getSize().x
+							&& lasers.at(i).getPosition().x >= 10.f 
+							&& leftPaddle.getPos().y-5.f <= lasers.at(i).getPosition().y
+							&& leftPaddle.getPos().y+leftPaddle.getSize().y+5.f >= lasers.at(i).getPosition().y ){
+						leftPaddle.fainted = true;
+					}
+					if (lasers.at(i).getPosition().x >= 1024-rightPaddle.getSize().x-10.f
+							|| lasers.at(i).getPosition().x <= 10.f){
+						RMIndex.push_back(i);
+					}
+				}
+		
+		for (int i = RMIndex.size()-1; i > 0; --i) {
+			lasers.erase(lasers.begin()+i);
+		}
 		client.send(p);
 
 		leftPaddle.draw(window, deltaTime);

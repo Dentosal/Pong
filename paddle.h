@@ -11,15 +11,19 @@ class Paddle
 		void down(float);
 		void draw(sf::RenderWindow&, float);
 		bool canShoot;
-                bool fainted;
-                void dump(sf::Packet&);
+		bool fainted;
+		int score;
+		void dump(sf::Packet&);
+		void shoot();
+		void scoreup();
 	private:
 		sf::RectangleShape shape;
 		bool left;
 		float laserload;
-                float timeFainted;
+		float timeFainted;
 };
 Paddle::Paddle(bool l) {
+	score=0;
 	left=l;
 	if (left) {
 		shape.setPosition(10, 334);
@@ -31,14 +35,17 @@ Paddle::Paddle(bool l) {
 	shape.setOutlineThickness(3);
 	shape.setOutlineColor(sf::Color::White);
 	shape.setFillColor(sf::Color::Blue);
-        fainted = false;
-        timeFainted = 0;
+	fainted = false;
+	timeFainted = 0;
 	canShoot = true;
-        laserload=0;
+	laserload=0;
 }
 Paddle::~Paddle() {}
 void Paddle::setPos(sf::Vector2f v) {
 	shape.setPosition(v);
+}
+void Paddle::scoreup() {
+	score+=1;
 }
 sf::Vector2f Paddle::getPos() {
 	return shape.getPosition();
@@ -58,24 +65,27 @@ void Paddle::down(float dT) {
 		shape.setPosition(shape.getPosition().x, 768-shape.getSize().y);
 	}
 }
+void Paddle::shoot() {
+	laserload=1.0f;
+	canShoot=false;
+}
 void Paddle::draw(sf::RenderWindow& window, float dT) {
 	window.draw(shape);
 	if (laserload<=0) {
-		laserload=0;
-                canShoot=true;
+		laserload=0.0f;
+		canShoot=true;
 	}
 	else {
 		laserload-=(dT);
 	}	
-        if (timeFainted >= 1.5) {
-            timeFainted = 0;
-            fainted = false;
+	if (timeFainted >= 1.5) {
+		timeFainted = 0;
+		fainted = false;
 	}
 	if (fainted){
-            timeFainted+=(dT);
+		timeFainted+=(dT);
 	}
 }
 void Paddle::dump(sf::Packet& p) {
-	std::cout << getPos().x << "_" << getPos().y << std::endl;
 	p << 1 << left << getPos().x << getPos().y << getSize().x << getSize().y;
 }

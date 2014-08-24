@@ -10,7 +10,7 @@ int main() {
 	sf::Vector2i windowsize(1024, 768);
 
 	// Create the window of the application
-	sf::RenderWindow window(sf::VideoMode(windowsize.x, windowsize.y, 32), "");
+	sf::RenderWindow window(sf::VideoMode(windowsize.x, windowsize.y, 32), "LaserPong");
 	window.setVerticalSyncEnabled(true);
 
 	// Load the text font
@@ -21,7 +21,7 @@ int main() {
 
 	// read ip from user
 	// now in /DEBUG/MODE/
-	std::string ip="194.197.235.49";
+	std::string ip="194.197.235.49";//"194.197.235.250";
 
 	// create socket and connect
 	sf::TcpSocket socket;
@@ -35,7 +35,6 @@ int main() {
 	socket.receive(p);
 	int statusmsg;
 	p >> statusmsg;
-	std::cout << statusmsg << std::endl;
 
 	sf::RectangleShape left;
 	left.setPosition(10, 334);
@@ -59,12 +58,26 @@ int main() {
 	ball.setFillColor(sf::Color::Blue);
 	ball.setOrigin(radius / 2, radius / 2);
 
+	sf::RectangleShape laser(sf::Vector2f(10, 2));
+	laser.setPosition(sf::Vector2f(-100, -100));
+	laser.setFillColor(sf::Color::Green);
+
+	sf::Text scoreMsg;
+	scoreMsg.setFont(font);
+	scoreMsg.setCharacterSize(40);
+	scoreMsg.setColor(sf::Color::Green);
+	scoreMsg.setString("0 - 0");
+	scoreMsg.setOrigin(sf::Vector2f(scoreMsg.getLocalBounds().left+scoreMsg.getLocalBounds().width/2.0f, scoreMsg.getLocalBounds().top+scoreMsg.getLocalBounds().height/2.0f));
+	scoreMsg.setPosition(512, 50);
+
 
 	while (window.isOpen())
 	{
 		// Handle events
 		sf::Event event;
-		bool sp, up, dw=false;
+		bool sp=false;
+		bool up=false;
+		bool dw=false;
 		while (window.pollEvent(event))
 		{
 			// Window closed or escape key pressed: exit
@@ -72,15 +85,16 @@ int main() {
 				window.close();
 				break;
 			}
-			if (event.type==sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space) {
+			if (event.type==sf::Event::KeyPressed && event.key.code == sf::Keyboard::Return) {
 				sp=true;
+				break;
 			}
 		}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
 			up=true;
 		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
 			dw=true;
 		}
 		// if both
@@ -88,11 +102,14 @@ int main() {
 			up=false;
 			dw=false;
 		}
+		// Clear the window
+		window.clear(sf::Color::Black);
+
+
 		sf::Packet p;
 		p << sp << up << dw;
 		socket.send(p);
 		socket.receive(p);
-		std::cout << "/" << std::endl;
 		int statusmsg;
 		int type;
 		p >> statusmsg;
@@ -117,11 +134,20 @@ int main() {
 				p >> x >> y;
 				ball.setPosition(sf::Vector2f(x, y));
 			}
-		} 
-
-		// Clear the window
-		window.clear(sf::Color::Black);
-
+			else if (type==3) {
+				float x, y;
+				p >> x >> y;
+				laser.setPosition(sf::Vector2f(x, y));
+				window.draw(laser);
+			}
+			else if (type==4) {
+				std::string score;
+				p >> score;
+				scoreMsg.setString(score);
+				scoreMsg.setOrigin(sf::Vector2f(scoreMsg.getLocalBounds().left+scoreMsg.getLocalBounds().width/2.0f, scoreMsg.getLocalBounds().top+scoreMsg.getLocalBounds().height/2.0f));
+			}
+		}
+		window.draw(scoreMsg);
 		window.draw(left);
 		window.draw(right);
 		window.draw(ball);

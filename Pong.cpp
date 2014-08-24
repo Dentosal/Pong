@@ -76,7 +76,6 @@ int main()
 	// 	window.draw(ipmsg);
 	// 	window.display();
 	// }
-	std::cout << "#" << std::endl;
 	ipmsg.setString("Connection ok");
 	window.clear(sf::Color::Black);
 	window.draw(ipmsg);
@@ -116,6 +115,7 @@ int main()
 	scoreMsg.setPosition(50, 50);
 	scoreMsg.setColor(sf::Color::Green);
 	scoreMsg.setString("0 0");
+//	scoreMsg.setOrigin(scoreMsg.getLocalBounds()/2.0f);
 
 	bool clientbuttons[3] = {false, false, false};
 
@@ -150,9 +150,8 @@ int main()
 		float deltaTime = clock.restart().asSeconds();
 		if (clientbuttons[0]) {
 			sf::RectangleShape laser(sf::Vector2f(10, 2));
-			laser.rotate(0);
+			laser.rotate(180);
 			laser.setPosition(rightPaddle.getPos()+rightPaddle.getSize()/2.0f);
-			laser.setPosition(leftPaddle.getPos()+leftPaddle.getSize()/2.0f);
 			laser.setFillColor(sf::Color::Green);
 			float a = laser.getRotation();
 			a=a*(PI/180);

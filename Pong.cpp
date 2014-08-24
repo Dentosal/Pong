@@ -131,9 +131,10 @@ int main()
 				window.close();
 				break;
 			}
-			if (event.type==sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space) {
+			if (event.type==sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space && leftPaddle.canShoot) {
 				sf::RectangleShape laser(sf::Vector2f(10, 2));
 				laser.setPosition(leftPaddle.getPos()+leftPaddle.getSize()/2.0f);
+
 				laser.setFillColor(sf::Color::Green);
 				float a = laser.getRotation();
 				a=a*(PI/180);
@@ -148,11 +149,10 @@ int main()
 		}
 		// get timedelta, reset clock
 		float deltaTime = clock.restart().asSeconds();
-		if (clientbuttons[0]) {
+		if (clientbuttons[0] && rightPaddle.canShoot) {
 			sf::RectangleShape laser(sf::Vector2f(10, 2));
-			laser.rotate(0);
+			laser.rotate(180);
 			laser.setPosition(rightPaddle.getPos()+rightPaddle.getSize()/2.0f);
-			laser.setPosition(leftPaddle.getPos()+leftPaddle.getSize()/2.0f);
 			laser.setFillColor(sf::Color::Green);
 			float a = laser.getRotation();
 			a=a*(PI/180);
@@ -166,42 +166,24 @@ int main()
 		if (clientbuttons[1]) {
 			if (!rightPaddle.fainted){
 				rightPaddle.up(deltaTime);
-			} else {
-				rightPaddle.timeFainted += deltaTime;
 			}
 		}
 		if (clientbuttons[2]) {
 			if (!rightPaddle.fainted){
 				rightPaddle.down(deltaTime);
-			} else {
-				rightPaddle.timeFainted += deltaTime;
 			}
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-			if (!leftPaddle.fainted){
-				leftPaddle.up(deltaTime);
-			} else {
-				leftPaddle.timeFainted += deltaTime;
-			}
+                    if (!leftPaddle.fainted){
+                            leftPaddle.up(deltaTime);
+                    }
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-			if (!leftPaddle.fainted){
-				leftPaddle.down(deltaTime);
-			} else {
-				leftPaddle.timeFainted += deltaTime;
-			}
+                    if (!leftPaddle.fainted){
+                            leftPaddle.down(deltaTime);
+                    }
 		}
-		
-
-		if (leftPaddle.timeFainted >= 3){
-			leftPaddle.timeFainted = 0;
-			leftPaddle.fainted = false;
-		}
-		if (rightPaddle.timeFainted >= 3){
-			rightPaddle.timeFainted = 0;
-			rightPaddle.fainted = false;
-		}
-
+                
 		ball.liiku(deltaTime, leftPaddle, rightPaddle);
 
 		// Clear the window
@@ -209,27 +191,35 @@ int main()
 		// And draw everything
 		window.draw(scoreMsg);
 		// Draw and move lasers
-		std::vector<int> RMIndex;
-				
+                std::vector<int> RMIndex;
+                
 		for (int i = 0; i < lasers.size(); ++i) {
-			window.draw(lasers.at(i));
-			float a = lasers.at(i).getRotation();
-			if (a==0) {
-				lasers.at(i).move(sf::Vector2f(deltaTime*500, 0));
-			}
-			else {
-				lasers.at(i).move(sf::Vector2f(deltaTime*500, 0));				
-			}
-				if (lasers.at(i).getPosition().x >= 1020-rightPaddle.getSize().x-10.f 
-						&& lasers.at(i).getPosition().x <= 1024
-						&& rightPaddle.getPos().y-5 <= lasers.at(i).getPosition().y+10.f 
-						&& rightPaddle.getPos().y+rightPaddle.getSize().y+5.f >= lasers.at(i).getPosition().y-10.f ){
-						rightPaddle.fainted = true;
-				}
-			if (lasers.at(i).getPosition().x >= 1024-rightPaddle.getSize().x-10.f){
-				RMIndex.push_back(i);
-			}
-		}
+                    window.draw(lasers.at(i));
+                    float a = lasers.at(i).getRotation();
+                    if (a==0) {
+                            lasers.at(i).move(sf::Vector2f(deltaTime*500, 0));
+                    }
+                    else {
+                            lasers.at(i).move(sf::Vector2f(-deltaTime*500, 0));				
+                    }
+                    if (lasers.at(i).getPosition().x >= 1020-rightPaddle.getSize().x-10.f 
+                            && lasers.at(i).getPosition().x <= 1024
+                            && rightPaddle.getPos().y-5.f <= lasers.at(i).getPosition().y 
+                            && rightPaddle.getPos().y+rightPaddle.getSize().y+5.f >= lasers.at(i).getPosition().y ){
+                        rightPaddle.fainted = true;
+                    }
+                    if (lasers.at(i).getPosition().x <= leftPaddle.getPos().x + leftPaddle.getSize().x
+                            && lasers.at(i).getPosition().x >= 10.f 
+                            && leftPaddle.getPos().y-5.f <= lasers.at(i).getPosition().y
+                            && leftPaddle.getPos().y+leftPaddle.getSize().y+5.f >= lasers.at(i).getPosition().y ){
+                        leftPaddle.fainted = true;
+                    }
+                    if (lasers.at(i).getPosition().x >= 1024-rightPaddle.getSize().x-10.f
+                            || lasers.at(i).getPosition().x <= 10.f){
+                        RMIndex.push_back(i);
+                    }
+                }
+		
 		for (int i = RMIndex.size()-1; i > 0; --i) {
 			lasers.erase(lasers.begin()+i);
 		}

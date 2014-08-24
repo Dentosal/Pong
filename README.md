@@ -1,4 +1,4 @@
 Pong
 ====
 
-Tuubaista ponkia
+Simple pong with network multiplayer, lasers and sound.

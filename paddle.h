@@ -10,10 +10,10 @@ class Paddle
 		void up(float);
 		void down(float);
 		void draw(sf::RenderWindow&, float);
-		bool canShoot();                
-                bool fainted;
-                float timeFainted;
-		float[] getData();
+		bool canShoot();				
+		bool fainted;
+		float timeFainted;
+		void dump(sf::Packet&);
 	private:
 		sf::RectangleShape shape;
 		bool left;
@@ -31,8 +31,8 @@ Paddle::Paddle(bool l) {
 	shape.setOutlineThickness(3);
 	shape.setOutlineColor(sf::Color::White);
 	shape.setFillColor(sf::Color::Blue);
-        fainted = false;
-        float timeFainted = 0;
+		fainted = false;
+		float timeFainted = 0;
 	laserload=0;
 }
 Paddle::~Paddle() {}
@@ -73,6 +73,7 @@ void Paddle::draw(sf::RenderWindow& window, float dT) {
 		laserload-=(dT);
 	}
 }
-float[] Paddle::getData() {
-	float[] x={shape.getPosition().x, shape.getPosition().y, shape.getSize().x, shape.getSize().y};
+void Paddle::dump(sf::Packet& p) {
+	std::cout << getPos().x << "_" << getPos().y << std::endl;
+	p << 1 << left << getPos().x << getPos().y << getSize().x << getSize().y;
 }

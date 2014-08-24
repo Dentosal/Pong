@@ -9,7 +9,7 @@ class Ball
 		void setPos(sf::Vector2f);
 		void liiku(float,Paddle,Paddle);
 		void draw(sf::RenderWindow&);
-		float[] getData();
+		void dump(sf::Packet&);
 	private:
 		int radius;
 		sf::SoundBuffer SoundBuffer;
@@ -69,6 +69,6 @@ void Ball::liiku(float dT, Paddle left, Paddle right) {
 void Ball::draw(sf::RenderWindow& window) {
 	window.draw(shape);
 }
-float[] Ball::getData() {
-	float[] x={shape.getPosition().x, shape.getPosition().y};
+void Ball::dump(sf::Packet& p) {
+	p << 2 << shape.getPosition().x << shape.getPosition().y;
 }

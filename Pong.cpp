@@ -109,7 +109,7 @@ int main()
 	std::vector<sf::RectangleShape> lasers;
 
 
-	bool isLeft = true;
+	const bool isLeft = true;
 
 	sf::Text scoreMsg;
 	scoreMsg.setFont(font);
@@ -118,6 +118,7 @@ int main()
 	scoreMsg.setColor(sf::Color::Green);
 	scoreMsg.setString("0 0");
 
+	bool clientbuttons[3] = {false, false, false};
 
 	sf::Clock clock;
 	while (window.isOpen())
@@ -213,9 +214,11 @@ int main()
 		}
 		sf::Packet p;
 		client.receive(p);
-		int q;
-		p >> q;
-		std::cout << q << std::endl;
+		bool x;
+		for (int i = 0; i < 3; ++i)
+		{
+			p >> clientbuttons[i];
+		}
 		p.clear();
 		p << 0;
 		leftPaddle.dump(p);

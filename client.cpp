@@ -64,6 +64,7 @@ int main() {
 	{
 		// Handle events
 		sf::Event event;
+		bool sp, up, dw=false;
 		while (window.pollEvent(event))
 		{
 			// Window closed or escape key pressed: exit
@@ -72,16 +73,23 @@ int main() {
 				break;
 			}
 			if (event.type==sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space) {
-
+				sp=true;
 			}
 		}
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+			up=true;
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+			dw=true;
+		}
+		// if both
+		if (up&&dw) {
+			up=false;
+			dw=false;
 		}
 		sf::Packet p;
-		p << 404;
+		p << sp << up << dw;
 		socket.send(p);
 		socket.receive(p);
 		std::cout << "/" << std::endl;
